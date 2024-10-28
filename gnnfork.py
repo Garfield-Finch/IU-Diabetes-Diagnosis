@@ -792,59 +792,35 @@ if __name__ == "__main__":
     train_one = 'victor_data/ada_train_victor_SMOTE_1:1_encoded_3_fold.csv'
     test_one = 'victor_data/ada_test_victor_SMOTE_1:1_encoded_3_fold.csv'
 
-    pi_model_path = 'runs/runs_gnnFork/Aug02_11-54-38_all_woLabEnc_hiddenDim=None_lr=1e-06_dropout=0.5/f1_None.pth'
-    pi_obs_dec_pretrain = 'runs/runs_gnnFork/Aug17_14-00-13_all_woLabEnc_hiddenDim=None_lr=1e-06_dropout=0.5/f1_None.pth'
+    pretrain_path = 'config/gnnfork_pretrain.pth'
+
+
     config_file = 'config/gnnconfig.yml'
-    seed = 42  # You can choose any integer seed value
-    # set_seed(seed)
-    # train = "victor_data/ada_train_victor_SMOTE_1:1_encoded_3_fold.csv"
-    # test = "victor_data/ada_test_victor_SMOTE_1:1_encoded_3_fold.csv"
 
-    # gnn = ModelGNN(train_data_path=train, test_data_path=test, batch_size=32, pi_train=True, pi_model_path=pi_model_path)
-    # print("train")
-    # gnn.train(epoch=1)
-    # print("test")
-    # gnn.test(epoch=1)
-
-    piRunner = gnnLupiRunner(
-        config=config_file,
-        train_data_path=train,
-        test_data_path=test,
-        batch_size=32,
-        exp_save_dir="runs/runs_gnnFork",
-        classify_input="wo_lab_enc",
-        pi_train=True,
-        wandbTracking=True,
-        criterion='focal',
-        num_epochs=250,
-    )
-    piRunner.run()
-
-    # obsRunner = gnnLupiRunner(
-    #     config=config_file,
-    #     train_data_path=train_one,
-    #     test_data_path=test_one,
-    #     batch_size=32,
-    #     exp_save_dir="runs/runs_gnnFork",
-    #     classify_input="wo_lab_enc",
-    #     pi_model_path=pi_obs_dec_pretrain,
-    #     pi_train=False,
-    #     wandbTracking=True,
-    #     criterion='cross_entropy'
-    # )
-    # obsRunner.run()
-
-
-    # clusterRunner = gnnLupiRunner(
+    # piRunner = gnnLupiRunner(
     #     config=config_file,
     #     train_data_path=train,
     #     test_data_path=test,
     #     batch_size=32,
-    #     exp_save_dir="runs/runs_gnnClustering",
+    #     exp_save_dir="runs/runs_gnnFork",
     #     classify_input="wo_lab_enc",
     #     pi_train=True,
-    #     wandbTracking=True,
-    #     criterion='cross_entropy',
-    #     cluster_method='cluster_v2'
+    #     wandbTracking=False,
+    #     criterion='focal',
+    #     num_epochs=250,
     # )
-    # clusterRunner.run()
+    # piRunner.run()
+
+    obsRunner = gnnLupiRunner(
+        config=config_file,
+        train_data_path=train_one,
+        test_data_path=test_one,
+        batch_size=32,
+        exp_save_dir="runs/runs_gnnFork",
+        classify_input="wo_lab_enc",
+        pi_model_path=pretrain_path,
+        pi_train=False,
+        wandbTracking=False,
+        criterion='cross_entropy'
+    )
+    obsRunner.run()

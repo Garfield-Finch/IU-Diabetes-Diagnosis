@@ -846,31 +846,22 @@ if __name__ == "__main__":
     test_path_one="./victor_data/ada_test_victor_SMOTE_1:1_encoded_3_fold.csv"
     train_path_one="./victor_data/ada_train_victor_SMOTE_1:1_encoded_3_fold.csv"
 
-    new_model_path = 'runs/runs_sizeFork/Sep01_10-25-25_all_woLabRaw_hiddenDim=None_lr=1e-06_dropout=0.5/f1_None.pth'
-        
-
-    sep9_exp_path = 'runs/runs_sizeFork/Sep09_14-48-21_all_woLabRaw_hiddenDim=None_lr=1e-06_dropout=0.5/f1_None.pth'
-
     config_file = 'config/gnnconfig.yml'
 
-    # gnn = ModelGNN(train_data_path=train, test_data_path=test, batch_size=32, pi_train=True, config=config_file, wandbTracking=True)
-    # print("train")
-    # gnn.train(epoch=1)
-    # print("test")
-    # gnn.test(epoch=1)
+    pretrain_path = 'config/fork_pretrain.pth'
 
-    piRunner = gnnLupiRunner(
-        config=config_file,
-        train_data_path=train,
-        test_data_path=test,
-        batch_size=32,
-        exp_save_dir="runs/runs_sizeFork",
-        classify_input="wo_lab_raw",
-        pi_train=True,
-        wandbTracking=False,
-        criterion='focal'
-    )
-    piRunner.run()
+    # piRunner = gnnLupiRunner(
+    #     config=config_file,
+    #     train_data_path=train,
+    #     test_data_path=test,
+    #     batch_size=32,
+    #     exp_save_dir="runs/runs_sizeFork",
+    #     classify_input="wo_lab_raw",
+    #     pi_train=True,
+    #     wandbTracking=False,
+    #     criterion='focal'
+    # )
+    # piRunner.run()
 
     # obs_focal = gnnLupiRunner(
     #     config=config_file,
@@ -888,18 +879,18 @@ if __name__ == "__main__":
 
     #one to one runner
 
-    # obsRunner = gnnLupiRunner(
-    #     config=config_file,
-    #     train_data_path=train_path_one,
-    #     test_data_path=test_path_one,
-    #     batch_size=32,
-    #     exp_save_dir="runs/runs_sizeFork",
-    #     classify_input="wo_lab_raw",
-    #     pi_model_path=sep9_exp_path,
-    #     pi_train=False,
-    #     wandbTracking=True,
-    #     criterion='cross_entropy'
-    # )
-    # obsRunner.run()
+    obsRunner = gnnLupiRunner(
+        config=config_file,
+        train_data_path=train_path_one,
+        test_data_path=test_path_one,
+        batch_size=32,
+        exp_save_dir="runs/runs_sizeFork",
+        classify_input="wo_lab_raw",
+        pi_model_path=pretrain_path,
+        pi_train=False,
+        wandbTracking=False,
+        criterion='cross_entropy'
+    )
+    obsRunner.run()
 
     
