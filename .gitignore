@@ -1,0 +1,10 @@
+runs/
+wandb/
+fcn_lupi/
+runs_*
+out/
+*.xlsx
+*.csvs
+.DS_Store
+victor_data/
+*__pycache__

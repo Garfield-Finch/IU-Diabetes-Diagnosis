@@ -1,0 +1,10 @@
+#obs_alpha : 0.737
+#obs_gamma : 2.0
+obs_alpha : 0.737
+obs_gamma : 2.0
+
+pi_loss_weight : 0.075
+
+
+
+batch_size : 32
