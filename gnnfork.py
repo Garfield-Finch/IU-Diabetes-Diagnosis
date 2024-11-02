@@ -26,6 +26,7 @@ from torch.utils.tensorboard import SummaryWriter
 import random
 import wandb
 import pandas as pd
+import argparse as ap
 
 import dataset.gnn_dataset as gnn_dataset
 
@@ -229,15 +230,15 @@ class ModelGNN(ModelnData):
             print(
                 f"   -- Cluster: Index: {self.cluster_idx}, Method: {cluster_method}, ls_hidden_dim: {self.ls_hidden_dim}, lr: {self.learning_rate}"
             )
-
-        self.train_loader = self.gen_dataloader_train_LUPI(
-            mode="train",
-            csv_filepath=train_data_path,
-            classify_input=classify_input,
-            cluster_method=cluster_method,
-            cluster_idx=cluster_idx,
-            batch_size=batch_size,
-        )
+        if train_data_path != None:
+            self.train_loader = self.gen_dataloader_train_LUPI(
+                mode="train",
+                csv_filepath=train_data_path,
+                classify_input=classify_input,
+                cluster_method=cluster_method,
+                cluster_idx=cluster_idx,
+                batch_size=batch_size,
+            )
 
         #use the PI dataset if the 
         if self.pi_train == True:
@@ -749,7 +750,9 @@ class gnnLupiRunner(BaseRunner):
         """
         cluster_method: cluster_v1, cluster_v2, None. None means all clusters combined. For LUPI, cluster_method is None.
         """
-        assert os.path.exists(train_data_path) and os.path.exists(test_data_path)
+        #assert os.path.exists(train_data_path) and os.path.exists(test_data_path)
+        assert os.path.exists(test_data_path)
+
         assert cluster_method in ["cluster_v1", "cluster_v2", None]
         #assert cluster_method is None
 
@@ -774,7 +777,6 @@ class gnnLupiRunner(BaseRunner):
 
 
 
-
 def set_seed(seed):
     random.seed(seed)
     np.random.seed(seed)
@@ -786,16 +788,28 @@ def set_seed(seed):
 
 
 if __name__ == "__main__":
-    train = 'victor_data/ada_train_victor_imbalanced_encoded_3_fold.csv'
-    test = 'victor_data/ada_test_victor_imbalanced_encoded_3_fold.csv'
+    parser = ap.ArgumentParser(description='HCSS Diabetes Diagnsosis Model')
+    parser.add_argument('-i', '--input', type=str, required=False, help='Path to data file')
+    args = parser.parse_args()
+    input_file = args.input
 
-    train_one = 'victor_data/ada_train_victor_SMOTE_1:1_encoded_3_fold.csv'
-    test_one = 'victor_data/ada_test_victor_SMOTE_1:1_encoded_3_fold.csv'
+    train = 'data/ada_train_victor_imbalanced_encoded_3_fold.csv'
+    test = 'data/ada_test_victor_imbalanced_encoded_3_fold.csv'
+
+    train_one = 'data/ada_train_victor_SMOTE_1:1_encoded_3_fold.csv'
+    test_one = 'data/ada_test_victor_SMOTE_1:1_encoded_3_fold.csv'
 
     pretrain_path = 'config/gnnfork_pretrain.pth'
 
 
     config_file = 'config/gnnconfig.yml'
+
+    #command line input override
+    if input_file == None:
+        test_file_path = test_one
+    else:
+        test_file_path = input_file
+
 
     # piRunner = gnnLupiRunner(
     #     config=config_file,
@@ -811,16 +825,31 @@ if __name__ == "__main__":
     # )
     # piRunner.run()
 
-    obsRunner = gnnLupiRunner(
+    # obsRunner = gnnLupiRunner(
+    #     config=config_file,
+    #     train_data_path=train_one,
+    #     test_data_path=test_one,
+    #     batch_size=32,
+    #     exp_save_dir="runs/runs_gnnFork",
+    #     classify_input="wo_lab_enc",
+    #     pi_model_path=pretrain_path,
+    #     pi_train=False,
+    #     wandbTracking=False,
+    #     criterion='cross_entropy'
+    # )
+    # obsRunner.run()
+
+
+    testRunner = gnnLupiRunner(
         config=config_file,
-        train_data_path=train_one,
-        test_data_path=test_one,
+        train_data_path=None,
+        test_data_path=test_file_path,
         batch_size=32,
         exp_save_dir="runs/runs_gnnFork",
         classify_input="wo_lab_enc",
         pi_model_path=pretrain_path,
         pi_train=False,
         wandbTracking=False,
-        criterion='cross_entropy'
+        criterion='cross_entropy',
     )
-    obsRunner.run()
+    testRunner.test(epoch=1)

@@ -22,6 +22,8 @@ import sys
 from torch.utils.tensorboard import SummaryWriter
 import random
 import wandb
+import argparse as ap
+
 
 class lupiGNN(torch.nn.Module):
     def __init__(self, batch_size=32):
@@ -281,15 +283,17 @@ class ModelGNN(ModelnData):
             print(
                 f"   -- Cluster: Index: {self.cluster_idx}, Method: {cluster_method}, ls_hidden_dim: {self.ls_hidden_dim}, lr: {self.learning_rate}"
             )
-
-        self.train_loader = self.gen_dataloader_train_LUPI(
-            mode="train",
-            csv_filepath=train_data_path,
-            classify_input=classify_input,
-            cluster_method=cluster_method,
-            cluster_idx=cluster_idx,
-            batch_size=batch_size,
-        )
+        if train_data_path != None:
+            self.train_loader = self.gen_dataloader_train_LUPI(
+                mode="train",
+                csv_filepath=train_data_path,
+                classify_input=classify_input,
+                cluster_method=cluster_method,
+                cluster_idx=cluster_idx,
+                batch_size=batch_size,
+            )
+        else:
+            self.train_loader = None
 
         #use the PI dataset if the 
         if self.pi_train == True:
@@ -762,7 +766,7 @@ class gnnLupiRunner(BaseRunner):
         self.writer = SummaryWriter(log_dir=self.save_dir)  # For TensorBoard
         sys.stdout = DualOutput(self.save_dir + ".txt")
 
-        shutil.copy("fork.py", os.path.join(self.save_dir, "fork.py"))
+        shutil.copy("main.py", os.path.join(self.save_dir, "main.py"))
 
         if config is not None:
             with open(config, 'r') as file:
@@ -822,7 +826,8 @@ class gnnLupiRunner(BaseRunner):
         """
         cluster_method: cluster_v1, cluster_v2, None. None means all clusters combined. For LUPI, cluster_method is None.
         """
-        assert os.path.exists(train_data_path) and os.path.exists(test_data_path)
+        #assert os.path.exists(train_data_path) and os.path.exists(test_data_path)
+        assert os.path.exists(test_data_path)
         assert cluster_method in ["cluster_v1", "cluster_v2", None]
         #assert cluster_method is None
 
@@ -839,16 +844,26 @@ class gnnLupiRunner(BaseRunner):
 
 
 if __name__ == "__main__":
-    train = 'victor_data/ada_train_victor_imbalanced_3_fold.csv'
-    test = 'victor_data/ada_test_victor_imbalanced_3_fold.csv'
-    model_path = 'runs/runs_sizeFork/Aug24_20-01-44_all_woLabRaw_hiddenDim=None_lr=1e-06_dropout=0.5/f1_None.pth'
+    parser = ap.ArgumentParser(description='HCSS Diabetes Diagnsosis Model')
+    parser.add_argument('-i', '--input', type=str, required=False, help='Path to data file')
+    args = parser.parse_args()
+    input_file = args.input
 
-    test_path_one="./victor_data/ada_test_victor_SMOTE_1:1_encoded_3_fold.csv"
-    train_path_one="./victor_data/ada_train_victor_SMOTE_1:1_encoded_3_fold.csv"
+    train = 'data/ada_train_victor_imbalanced_3_fold.csv'
+    test = 'data/ada_test_victor_imbalanced_3_fold.csv'
+
+    test_path_one="./data/ada_test_victor_SMOTE_1:1_encoded_3_fold.csv"
+    train_path_one="./data/ada_train_victor_SMOTE_1:1_encoded_3_fold.csv"
 
     config_file = 'config/gnnconfig.yml'
 
-    pretrain_path = 'config/fork_pretrain.pth'
+    pretrain_path = 'config/main_pretrain.pth'
+
+    #command line input override
+    if input_file == None:
+        test_file_path = test_path_one
+    else:
+        test_file_path = input_file
 
     # piRunner = gnnLupiRunner(
     #     config=config_file,
@@ -879,18 +894,34 @@ if __name__ == "__main__":
 
     #one to one runner
 
-    obsRunner = gnnLupiRunner(
+    # obsRunner = gnnLupiRunner(
+    #     config=config_file,
+    #     train_data_path=train_path_one,
+    #     test_data_path=test_path_one,
+    #     batch_size=32,
+    #     exp_save_dir="runs/runs_sizeFork",
+    #     classify_input="wo_lab_raw",
+    #     pi_model_path=pretrain_path,
+    #     pi_train=False,
+    #     wandbTracking=False,
+    #     criterion='cross_entropy'
+    # )
+    # obsRunner.run()
+
+
+    testRunner = gnnLupiRunner(
         config=config_file,
-        train_data_path=train_path_one,
-        test_data_path=test_path_one,
+        train_data_path=None,
+        test_data_path=test_file_path,
         batch_size=32,
-        exp_save_dir="runs/runs_sizeFork",
+        exp_save_dir="runs/runs_main",
         classify_input="wo_lab_raw",
         pi_model_path=pretrain_path,
         pi_train=False,
         wandbTracking=False,
         criterion='cross_entropy'
     )
-    obsRunner.run()
+    testRunner.test(epoch=1)
+
 
     
