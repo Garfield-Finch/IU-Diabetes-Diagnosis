@@ -11,13 +11,12 @@ bash Anaconda3-2024.10-1-Linux-x86_64.sh
 git clone https://github.com/Garfield-Finch/IU-Diabetes-Diagnosis.git
 ```
 
-### Step 3. Create the conda environment using the configuration file in `config/environment.yml`  # TODO: to verify the file name
+### Step 3. Create the conda environment using the configuration file in `environment.yml`
 
 ```bash
-conda env create -f ./config/environment.yml
+conda env create -f environment.yml
 conda activate IUHealth
 ```
-# TODO: To verify the conda env name
 
 ### Step 4. Run the code
 
