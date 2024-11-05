@@ -22,5 +22,5 @@ conda activate IUHealth
 ### Step 4. Run the code
 
 ```bash
-python main.py -c config/gnnconfig.yml
+python main.py -i ./dataset.csv
 ```
