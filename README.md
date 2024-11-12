@@ -21,5 +21,6 @@ conda activate IUHealth
 ### Step 4. Run the code
 
 ```bash
-python main.py -i ./dataset.csv
+chmod +x run.sh
+./run.sh
 ```
