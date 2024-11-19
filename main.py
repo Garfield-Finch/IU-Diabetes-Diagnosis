@@ -852,8 +852,8 @@ if __name__ == "__main__":
     train = 'data/ada_train_victor_imbalanced_3_fold.csv'
     test = 'data/ada_test_victor_imbalanced_3_fold.csv'
 
-    test_path_one="./data/ada_test_victor_SMOTE_1:1_encoded_3_fold.csv"
-    train_path_one="./data/ada_train_victor_SMOTE_1:1_encoded_3_fold.csv"
+    test_path_one="./data/ada_test_victor_SMOTE_1_1_encoded_3_fold.csv"
+    train_path_one="./data/ada_train_victor_SMOTE_1_1_encoded_3_fold.csv"
 
     config_file = 'config/gnnconfig.yml'
 
