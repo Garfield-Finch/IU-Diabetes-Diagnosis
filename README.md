@@ -8,9 +8,6 @@ bash Anaconda3-2024.10-1-Linux-x86_64.sh
 #### or use Miniconda
 
 ```
-cd 
-```
-```
 wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/work/Users/hnelson3
 wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /home/hnelson3/miniconda3/miniconda.sh
 ```
