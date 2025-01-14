@@ -1,120 +1,80 @@
-# Make System modifications to the Learning Health Network (LHN) VM.
+# Make System modifications to the Learning Health Network (LHN) VM
 
-run update_lhn/setup_lhn.sh to do all of this in a shell script.
-except for the last part of ./run.sh  Do that by hand after activating the environment
+This document provides an overview of the setup process for the Learning Health Network (LHN) VM. The setup process is automated using the `setup_lhn.sh` script located in the `update_lhn` directory.
 
-## Configure SSH key for GitHub
+## Prerequisites
 
-You will need to clone the repository from GitHub. You will need to configure SSH keys to do this.
+Ensure the following files are present in the `update_lhn` directory:
+- `setup_lhn.sh`
+- `install_miniconda.sh`
+- `environment.yml`
 
-### Check for .ssh directory
+## Running the Setup Script
 
-Create this directory only if you don't already have it.
-
-```
-ls -al ~/.ssh
-```
-
-```
-mkdir -p ~/.ssh
-chmod 700 ~/.ssh
-```
-
-## Check for SSH keys
-
-Create keys only if needed.
-
-```
-ls -al ~/.ssh/id_*
-```
-
-## Generate a new SSH key
-
-### First install `ssh-keygen` if needed.
-
-```
-sudo apt-get install openssh-client
-```
-
-- Note to replace `harlananelson@gmail.com` With your email
-
-```
-ssh-keygen -t ed25519 -C "harlananelson@gmail.com"
-```
-
-### Get ride of unneeded software.
-```
-sudo apt autoremove
-```
-
-### Add the SSH key to ssh-agent
-
-```
-eval "$(ssh-agent -s)" 
-ssh-add ~/.ssh/id_ed25519
-```
-
-### You need to copy this key to github SSH key 
-
-Alternate way to copy the key to the clipboard.
-
-```
-cat ~/.ssh/id_ed25519.pub > ~/work/Users/hnelson3/ssh_key.txt
-echo "Your SSH key has been saved to ~/ssh_key.txt"
-```
-copy then delete that file
-
-```
-rm ~/work/Users/hnelson3/ssh_key.txt
-```
-
-
-# Put key in github SSH Keys
-
-#### Remove old SSH keys if needed
-
-rm ~/.ssh/id_ed25519
-rm ~/.ssh/id_ed25519.pub
-rm ~/ssh_key.txt
-
-
-
-The LHN is created from a docker script every day.  Currently that script installs outdated software.  Until the script is updated, we need to manually install the latest software.
-
-## Install  `microconda`.  
-
- 
- Run the `install_miniconda.sh` script to install `miniconda`.
-
- ```
- sh update_lhn/install_miniconda.sh
- ```
-
-
-### Step 2. Clone this GitHub repository
-
-### Tell git who you are
-
-```
-git config --global user.email "harlananelson@gmail.com"
-git config --global user.name "Harlan Nelson"
-```
-
-#### With ssh
+To automate the setup process, run the `setup_lhn.sh` script:
 
 ```bash
-git clone git@github.com:Garfield-Finch/IU-Diabetes-Diagnosis.git
+sh update_lhn/setup_lhn.sh
 ```
 
-### Step 3. Create the conda environment using the configuration file in `environment.yml`
+After the script completes, you may need to source your `.bashrc` file to apply changes:
 
 ```bash
-conda env create -f environment.yml
+source ~/.bashrc
+```
+
+## Manual Steps
+
+### Configure SSH Key for GitHub
+
+The script will handle the SSH key generation and configuration. You will need to manually add the generated SSH key to your GitHub account under Settings > SSH and GPG keys > New SSH key.
+
+### Clone the GitHub Repository
+
+The script will clone the GitHub repository if it is not already present. Ensure you have SSH access configured correctly.
+
+### Create the Conda Environment
+
+The script will create the Conda environment using the `environment.yml` configuration file. If the environment already exists, it will skip this step.
+
+### Running the Run Script
+
+The script will make the `run.sh` script executable but will not run it automatically. You will need to run it manually after activating the Conda environment:
+
+```bash
 conda activate IUHealth
-```
-
-```bash
-chmod +x run.sh
 ./run.sh
 ```
 
+## Detailed Steps (For Reference)
+
+The `setup_lhn.sh` script performs the following steps:
+
+1. **Check and Create .ssh Directory**:
+   - If the `.ssh` directory does not exist, it will be created.
+
+2. **Generate SSH Key**:
+   - If SSH keys do not exist, a new SSH key will be generated.
+   - The SSH key will be added to the `ssh-agent`.
+   - The public key will be saved to `./id_ed25519.pub.txt` for manual addition to GitHub.
+
+3. **Verify SSH Connection to GitHub**:
+   - The script will verify the SSH connection to GitHub.
+   - You will be prompted to confirm that the SSH key has been added to GitHub.
+
+4. **Install Miniconda**:
+   - If Miniconda is not installed or the version is outdated, the script will install or update Miniconda using the `install_miniconda.sh` script.
+
+5. **Clone the GitHub Repository**:
+   - If the GitHub repository has not been cloned, the script will clone it.
+
+6. **Create the Conda Environment**:
+   - If the Conda environment does not exist, the script will create it using the `environment.yml` file.
+
+7. **Make the Run Script Executable**:
+   - The script will make the `run.sh` script executable but will not run it automatically.
+
+## Additional Notes
+
+- The LHN VM is created from a Docker script every day. Until the script is updated, we need to manually install the latest software.
+- Ensure that `install_miniconda.sh`, `environment.yml`, and `setup_lhn.sh` are all in the `update_lhn` directory.
