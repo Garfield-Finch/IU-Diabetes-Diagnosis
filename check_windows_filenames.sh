@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+# This script validates file names against Windows standards.
+# It checks for invalid characters and path length,
+# and ignores files listed in .gitignore. The script can be run
+# without arguments to check the directory where the script is located,
+# or with a directory path as an argument to check that directory.
+
 # Initialize counters for valid and invalid files
 valid_count=0
 invalid_count=0
@@ -23,7 +29,7 @@ validate_file_name() {
 
     # Check for invalid characters using a case statement
     case "$file_name" in
-        *[\:\\/\*\?\"\<\>\|]*) 
+        *[\:\\/\*\?\"\<\>\|]*)
             echo "INVALID (characters): $file_path"
             ((invalid_count++))
             return
@@ -78,4 +84,3 @@ echo
 echo "Summary:"
 echo "Valid files: $valid_count"
 echo "Invalid files: $invalid_count"
-

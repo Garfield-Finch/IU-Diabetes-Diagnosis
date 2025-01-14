@@ -1,24 +1,105 @@
-### Step 1. Install Anaconda
+# Make System modifications to the Learning Health Network (LHN) VM.
 
-```bash
-wget https://repo.anaconda.com/archive/Anaconda3-2024.10-1-Linux-x86_64.sh
-bash Anaconda3-2024.10-1-Linux-x86_64.sh
+run update_lhn/setup_lhn.sh to do all of this in a shell script.
+except for the last part of ./run.sh  Do that by hand after activating the environment
+
+## Configure SSH key for GitHub
+
+You will need to clone the repository from GitHub. You will need to configure SSH keys to do this.
+
+### Check for .ssh directory
+
+Create this directory only if you don't already have it.
+
+```
+ls -al ~/.ssh
 ```
 
-#### or use Miniconda
+```
+mkdir -p ~/.ssh
+chmod 700 ~/.ssh
+```
+
+## Check for SSH keys
+
+Create keys only if needed.
 
 ```
-wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/work/Users/hnelson3
-wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /home/hnelson3/miniconda3/miniconda.sh
+ls -al ~/.ssh/id_*
 ```
+
+## Generate a new SSH key
+
+### First install `ssh-keygen` if needed.
+
+```
+sudo apt-get install openssh-client
+```
+
+- Note to replace `harlananelson@gmail.com` With your email
+
+```
+ssh-keygen -t ed25519 -C "harlananelson@gmail.com"
+```
+
+### Get ride of unneeded software.
+```
+sudo apt autoremove
+```
+
+### Add the SSH key to ssh-agent
+
+```
+eval "$(ssh-agent -s)" 
+ssh-add ~/.ssh/id_ed25519
+```
+
+### You need to copy this key to github SSH key 
+
+Alternate way to copy the key to the clipboard.
+
+```
+cat ~/.ssh/id_ed25519.pub > ~/work/Users/hnelson3/ssh_key.txt
+echo "Your SSH key has been saved to ~/ssh_key.txt"
+```
+copy then delete that file
+
+```
+rm ~/work/Users/hnelson3/ssh_key.txt
+```
+
+
+# Put key in github SSH Keys
+
+#### Remove old SSH keys if needed
+
+rm ~/.ssh/id_ed25519
+rm ~/.ssh/id_ed25519.pub
+rm ~/ssh_key.txt
+
+
+
+The LHN is created from a docker script every day.  Currently that script installs outdated software.  Until the script is updated, we need to manually install the latest software.
+
+## Install  `microconda`.  
+
+ 
+ Run the `install_miniconda.sh` script to install `miniconda`.
+
+ ```
+ sh update_lhn/install_miniconda.sh
+ ```
+
 
 ### Step 2. Clone this GitHub repository
 
-#### With https
+### Tell git who you are
 
-```bash
-git clone https://github.com/Garfield-Finch/IU-Diabetes-Diagnosis.git
 ```
+git config --global user.email "harlananelson@gmail.com"
+git config --global user.name "Harlan Nelson"
+```
+
 #### With ssh
 
 ```bash
@@ -32,39 +113,8 @@ conda env create -f environment.yml
 conda activate IUHealth
 ```
 
-### Step 4. Run the code
-
 ```bash
 chmod +x run.sh
 ./run.sh
 ```
-### Reverence
 
-#### Configure SSH key for GitHub
-
-##### If you don't have the .ssh directory.
-
-mkdir -p ~/.ssh
-chmod 700 ~/.ssh
-
-#### Generate a new SSH key
-
-- Note to replace with your email
-ssh-keygen -t ed25519 -C "harlananelson@gmail.com"
-
-#### Add the SSH key to ssh-agent
-eval "$(ssh-agent -s)" 
-ssh-add ~/.ssh/id_ed25519
-
-#### You need to copy this key to github SSH key 
-
-cat ~/.ssh/id_ed25519.pub > ~/ssh_key.txt
-echo "Your SSH key has been saved to ~/ssh_key.txt"
-
-# Put key in github SSH Keys
-
-#### Remove old SSH keys if needed
-
-rm ~/.ssh/id_ed25519
-rm ~/.ssh/id_ed25519.pub
-rm ~/ssh_key.txt
