@@ -18,31 +18,45 @@
 #
 # Set up variables
 EMAIL="harlananelson@example.com"
-USER_NAME="Your Name"
+USER_NAME="Harlan A Nelson"
 GITHUB_REPO="git@github.com:Garfield-Finch/IU-Diabetes-Diagnosis.git"
 MINICONDA_SCRIPT="./install_miniconda.sh"
 ENV_YAML="./environment.yml"  # Assuming environment.yml is one directory up
-MINICONDA_VERSION='latest'
+MINICONDA_VERSION='4.12.0'
 RUN_SCRIPT=false
 INSTALL_MINICONDA=false
 
+# Function to check if a command exists
+command_exists() {
+    command -v "$1" &> /dev/null
+}
+
+# Ensure the PATH includes necessary directories
+export PATH="/usr/bin:/usr/local/bin:$PATH"
+
 # Step 1: Install necessary SSH packages
-if ! command -v ssh-keygen &> /dev/null; then
+if ! command_exists ssh-keygen; then
     echo "ssh-keygen is not installed: installing ssh-keygen"
     sudo apt-get update -qq
     sudo apt-get install -qq -y openssh-client
+else
+    echo "ssh-keygen is already installed: $(command -v ssh-keygen)"
 fi
 
-if ! command -v ssh-add &> /dev/null; then
+if ! command_exists ssh-add; then
     echo "ssh-add is not installed: installing ssh-add"
     sudo apt-get update -qq
     sudo apt-get install -qq -y openssh-client
+else
+    echo "ssh-add is already installed: $(command -v ssh-add)"
 fi
 
-if ! command -v ssh-agent &> /dev/null; then
+if ! command_exists ssh-agent; then
     echo "ssh-agent is not installed: installing ssh-agent"
     sudo apt-get update -qq
     sudo apt-get install -qq -y openssh-client
+else
+    echo "ssh-agent is already installed: $(command -v ssh-agent)"
 fi
 
 # Step 2: Check for .ssh directory
@@ -50,6 +64,8 @@ if [ ! -d ~/.ssh ]; then
     echo "A .ssh directory does not exist: creating .ssh directory"
     mkdir -p ~/.ssh
     chmod 700 ~/.ssh
+else
+    echo ".ssh directory already exists"
 fi
 
 # Step 3: Check for existing SSH keys
@@ -74,27 +90,32 @@ echo "Press Enter after adding the SSH key to GitHub..."
 read -p "Have you added the SSH key to GitHub? (y/n): " confirm
 if [ "$confirm" != "y" ]; then
     echo "Please add the SSH key to GitHub"
-fi
-
-# Attempt to connect to GitHub and capture the output
-OUTPUT=$(ssh -T git@github.com 2>&1)
-
-# Capture the exit status
-EXIT_STATUS=$?
-
-# Print the output and exit status for debugging
-echo "SSH command output: $OUTPUT"
-echo "SSH command exit status: $EXIT_STATUS"
-
-# Check the output message for successful authentication
-if echo "$OUTPUT" | grep -q "You've successfully authenticated"; then
-    echo "SSH connection successful with message: $OUTPUT"
+    CONNECT_GITHUB=false
 else
-    echo "SSH connection failed with exit status [$EXIT_STATUS] and message: $OUTPUT"
+    CONNECT_GITHUB=true
 fi
 
-# Step 4: Install miniconda if not already installed or version is outdated
-if command -v conda &> /dev/null; then
+# Step 4: Attempt to connect to GitHub and capture the output
+if [ "$CONNECT_GITHUB" = true ]; then
+    OUTPUT=$(ssh -T git@github.com 2>&1)
+
+    # Capture the exit status
+    EXIT_STATUS=$?
+
+    # Print the output and exit status for debugging
+    echo "SSH command output: $OUTPUT"
+    echo "SSH command exit status: $EXIT_STATUS"
+
+    # Check the output message for successful authentication
+    if echo "$OUTPUT" | grep -q "You've successfully authenticated"; then
+        echo "SSH connection successful with message: $OUTPUT"
+    else
+        echo "SSH connection failed with exit status [$EXIT_STATUS] and message: $OUTPUT"
+    fi
+fi
+
+# Step 5: Install miniconda if not already installed or version is outdated
+if command_exists conda; then
     echo "Miniconda is already installed"
     # Check the version of Miniconda
     CURRENT_VERSION=$(conda --version | awk '{print $2}')
@@ -131,7 +152,7 @@ fi
 
 if [ "$CLONE" = true ]; then
 
-   # Step 5: Clone the GitHub repository
+   # Step 6: Clone the GitHub repository
    echo "Cloning the GitHub repository"
    git config --global user.email "$EMAIL"
    git config --global user.name "$USER_NAME"
@@ -139,7 +160,7 @@ if [ "$CLONE" = true ]; then
    cd IU-Diabetes-Diagnosis
 fi
 
-# Step 6: Update Python in the base environment
+# Step 7: Update Python in the base environment
 if [ "$INSTALL_MINICONDA" = true ]; then
     echo "Updating Python to the latest version"
     conda install python=3.10 -y
@@ -154,7 +175,7 @@ else
     ENV_NAME_EXISTS=false
 fi
 
-# Step 7: Create the Conda environment
+# Step 8: Create the Conda environment
 if [ "$ENV_NAME_EXISTS" = false ]; then
 
    echo "Creating the Conda environment"
@@ -164,7 +185,7 @@ if [ "$ENV_NAME_EXISTS" = false ]; then
 fi
 
 if [ "$RUN_SCRIPT" = true ]; then
-   # Step 8: Make the run script executable and run it
+   # Step 9: Make the run script executable and run it
    echo "Running the run script"
    chmod +x run.sh
    ./run.sh

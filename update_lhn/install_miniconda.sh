@@ -4,6 +4,8 @@
 LOCAL_FILE=~/work/Users/hnelson3/Miniconda3-latest-Linux-x86_64.sh
 CHECKSUM_FILE=~/work/Users/hnelson3/Miniconda3-latest-Linux-x86_64.sh.sha256
 
+curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+
 # Function to download the checksum file
 download_checksum() {
   wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh.sha256 -O "$CHECKSUM_FILE"
