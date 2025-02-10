@@ -15,6 +15,7 @@
 # sh setup_lhn.sh
 # when finished run
 # source ~/.bashrc
+#
 # Set up variables
 EMAIL="harlananelson@example.com"
 USER_NAME="Harlan A Nelson"
